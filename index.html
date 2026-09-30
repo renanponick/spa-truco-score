@@ -16,13 +16,22 @@
     --surface-2: #1B342B;
     --border: #2B4A3D;
     --gold: #D8A94D;
+    --gold-ink: #D8A94D;
     --gold-dim: #8A733C;
     --team-a: #C1462E;
+    --team-a-fill: #C1462E;
     --team-a-dim: #6E3126;
+    --on-team-a: #FFF8EC;
     --team-b: #3E8E96;
+    --team-b-fill: #3E8E96;
     --team-b-dim: #275257;
+    --on-team-b: #FFF8EC;
+    --danger: #C8452D;
+    --danger-ink: #E0674F;
     --text: #EDE7D9;
     --text-muted: #8FA396;
+    --scrim: rgba(5,10,8,0.72);
+    --ad-h: 0px;
     --radius-lg: 22px;
     --radius-md: 14px;
     --radius-sm: 10px;
@@ -45,7 +54,8 @@
   body{
     display:flex;
     justify-content:center;
-    padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 12px);
+    gap: 24px;
+    padding: env(safe-area-inset-top, 16px) max(12px, env(safe-area-inset-right)) calc(var(--ad-h) + env(safe-area-inset-bottom, 16px)) max(12px, env(safe-area-inset-left));
   }
 
   .app{
@@ -65,7 +75,7 @@
     background:none;
   }
   button:focus-visible, [contenteditable]:focus-visible, input:focus-visible{
-    outline: 2px solid var(--gold);
+    outline: 2px solid var(--gold-ink);
     outline-offset: 2px;
   }
 
@@ -81,13 +91,15 @@
     display:flex;
     align-items:center;
     gap:8px;
+    flex-shrink:0;
   }
   header h1{
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(20px, 5.6vw, 25px);
+    font-size: clamp(18px, 5.2vw, 25px);
     margin:0;
     letter-spacing: 0.2px;
+    white-space:nowrap;
   }
   .icon-btn{
     width: 34px;
@@ -107,10 +119,13 @@
     flex-direction:column;
     align-items:flex-end;
     gap:6px;
+    min-width:0;
   }
   .wins{
     display:flex;
     gap:6px;
+    min-width:0;
+    max-width:100%;
   }
   .win-pill{
     display:flex;
@@ -124,6 +139,7 @@
     color: var(--text-muted);
     white-space:nowrap;
     max-width: 120px;
+    min-width:0;
     overflow:hidden;
   }
   .win-pill span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -174,7 +190,7 @@
   }
   .direction-btn .arrow{
     font-size: 13px;
-    color: var(--gold);
+    color: var(--gold-ink);
     line-height:1;
   }
   .dealer-seats{
@@ -209,10 +225,10 @@
   }
   .seat-chip.a .seat-name{ color: var(--team-a); }
   .seat-chip.b .seat-name{ color: var(--team-b); }
-  .seat-chip.active{ border-color: var(--gold); }
+  .seat-chip.active{ border-color: var(--gold-ink); }
   .seat-chip.active.a{ background: var(--team-a-dim); }
   .seat-chip.active.b{ background: var(--team-b-dim); }
-  .seat-chip.active .seat-suit{ opacity:1; color: var(--gold); }
+  .seat-chip.active .seat-suit{ opacity:1; color: var(--gold-ink); }
 
   /* scoreboard */
   .scoreboard{
@@ -262,7 +278,7 @@
   .team-name[contenteditable="true"]{
     white-space:normal;
     outline: none;
-    border-color: var(--gold);
+    border-color: var(--gold-ink);
     background: var(--surface-2);
   }
 
@@ -281,7 +297,7 @@
   .mao11{
     font-size: 11.5px;
     font-weight:700;
-    color: var(--bg);
+    color: #241C0C;
     background: var(--gold);
     padding: 3px 9px;
     border-radius: 999px;
@@ -291,33 +307,53 @@
 
   .mini-controls{
     display:flex;
+    flex-direction:column;
     align-items:center;
     gap:8px;
     width:100%;
-    justify-content:center;
   }
+  /* o botão principal da tela: cor cheia do time e o valor que vai entrar */
   .point-btn{
-    flex:1;
-    max-width: 132px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
+    width:100%;
+    max-width: 170px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1px;
     border-radius: var(--radius-md);
-    padding: 12px 6px;
-    font-weight: 700;
-    font-size: 14px;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    padding: 9px 6px 10px;
+    box-shadow: 0 6px 18px -8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: transform 0.1s ease, filter 0.15s ease;
   }
-  .team-a .point-btn:active{ background: var(--team-a-dim); border-color: var(--team-a); }
-  .team-b .point-btn:active{ background: var(--team-b-dim); border-color: var(--team-b); }
-  .point-btn:disabled{ opacity:0.4; }
+  .team-a .point-btn{ background: var(--team-a-fill); color: var(--on-team-a); }
+  .team-b .point-btn{ background: var(--team-b-fill); color: var(--on-team-b); }
+  .point-btn:active{ transform: scale(0.96); filter: brightness(1.1); }
+  .point-btn:disabled{ opacity:0.4; box-shadow:none; }
+  .point-btn .pb-plus{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .point-btn .pb-label{
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    opacity: 0.9;
+    white-space:nowrap;
+  }
+  .point-btn.pop .pb-plus{ animation: pop 0.28s ease; }
+  @keyframes pop{ 50%{ transform: scale(1.25); } }
 
   .mini{
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    min-width: 44px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    font-size: 16px;
+    font-size: 12.5px;
     font-weight:700;
     color: var(--text-muted);
     display:flex;
@@ -342,7 +378,7 @@
     align-items:center;
     justify-content:center;
     font-family: var(--font-display);
-    color: var(--gold);
+    color: var(--gold-ink);
     font-weight:700;
     font-size: 15px;
     margin-top: 30px;
@@ -374,7 +410,7 @@
     text-align:center;
   }
   .stake-label b{
-    color: var(--gold);
+    color: var(--gold-ink);
     font-family: var(--font-display);
     font-size: 17px;
     font-weight:700;
@@ -456,7 +492,7 @@
   }
   .narr-power[aria-pressed="true"]{
     border-color: var(--gold-dim);
-    color: var(--gold);
+    color: var(--gold-ink);
   }
   .narr-chips{
     display:grid;
@@ -485,36 +521,73 @@
     color: #241C0C;
   }
   .narr-chip.chosen{
-    border-color: var(--gold);
+    border-color: var(--gold-ink);
   }
 
-  .volume-row{
+  .narr-speed{
+    min-width: 46px;
+    height: 38px;
+    padding: 0 6px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: 12.5px;
+    font-weight:800;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    flex-shrink:0;
+  }
+  .narrator.off .narr-speed{ opacity: 0.4; }
+  @media (max-width: 370px){
+    .narrator{ gap:4px; padding:5px; }
+    .narr-chips{ gap:4px; }
+    .narr-chip{ font-size: 10.5px; padding: 9px 1px; }
+    .narr-power{ width: 34px; }
+    .narr-speed{ min-width: 40px; font-size: 11.5px; }
+  }
+
+  /* linhas do painel de ajustes: rótulo à esquerda, controle à direita */
+  .set-row{
     display:flex;
     align-items:center;
     gap:10px;
+    min-height: 36px;
   }
-  .volume-row input[type="range"]{
+  .set-row > span:first-child{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    width: 86px;
+    flex-shrink:0;
+  }
+  .set-row input[type="range"]{
     flex:1;
+    min-width:0;
     accent-color: var(--gold);
     background: transparent;
   }
-  .volume-row span{
+  .set-row .set-value{
     font-size:12px;
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
-    width: 38px;
+    width: 36px;
     text-align:right;
   }
-  .toggle-row{
-    display:flex;
-    gap:8px;
-  }
-  .toggle-row button{
+  .seg{
     flex:1;
+    min-width:0;
+    display:flex;
+    gap:4px;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 10px 6px;
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+  .seg button{
+    flex:1;
+    min-width:0;
+    border-radius: 7px;
+    padding: 7px 4px;
     font-size: 12.5px;
     font-weight:700;
     color: var(--text-muted);
@@ -522,11 +595,34 @@
     text-overflow:ellipsis;
     white-space:nowrap;
   }
-  .toggle-row button.active{
+  .seg button.active{
     background: var(--gold);
-    border-color: var(--gold);
     color: #241C0C;
   }
+  .switch{
+    margin-left:auto;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    position:relative;
+    flex-shrink:0;
+    transition: background 0.15s ease;
+  }
+  .switch::after{
+    content:"";
+    position:absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius:50%;
+    background: var(--text-muted);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .switch[aria-checked="true"]{ background: var(--gold); border-color: var(--gold); }
+  .switch[aria-checked="true"]::after{ transform: translateX(20px); background: #241C0C; }
 
   /* actions */
   .actions{
@@ -544,7 +640,7 @@
     color: var(--text-muted);
   }
   .actions button:disabled{ opacity:0.35; }
-  #resetAllBtn{ color: var(--team-a); }
+  #resetAllBtn{ color: var(--danger-ink); }
 
   /* history */
   .history{
@@ -637,7 +733,7 @@
   .overlay{
     position:fixed;
     inset:0;
-    background: rgba(5,10,8,0.72);
+    background: var(--scrim);
     backdrop-filter: blur(2px);
     display:flex;
     align-items:center;
@@ -663,7 +759,7 @@
     font-family: var(--font-display);
     font-size: 15px;
     letter-spacing: 0.3px;
-    color: var(--gold);
+    color: var(--gold-ink);
     margin:0;
   }
   .win-team{
@@ -688,9 +784,11 @@
   .overlay-card .secondary{
     background: transparent;
     border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     color: var(--text-muted);
     font-weight:700;
-    margin-top:4px;
+    padding: 12px;
+    font-size: 13.5px;
   }
   .confirm-title{
     font-family: var(--font-display);
@@ -710,7 +808,7 @@
   }
   .confirm-actions button{ flex:1; }
   .confirm-actions .danger{
-    background: var(--team-a);
+    background: var(--danger);
     color: #FCEEEA;
   }
 
@@ -720,36 +818,116 @@
     max-width: 380px;
     max-height: 88vh;
     overflow-y:auto;
+    gap: 14px;
+    padding: 20px 18px;
+  }
+  .settings-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
   }
   .settings-title{
     font-family: var(--font-display);
     font-size: 20px;
     font-weight:700;
-    margin: 0 0 2px;
+    margin: 0;
   }
   .settings-section{
     border-top: 1px solid var(--border);
     padding-top: 14px;
-    margin-top: 4px;
     display:flex;
     flex-direction:column;
     gap:10px;
   }
-  .settings-section:first-of-type{ border-top:none; padding-top:0; margin-top:0; }
   .settings-label{
-    font-size: 12.5px;
-    font-weight:700;
+    font-size: 11px;
+    font-weight:800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
     color: var(--text-muted);
     margin:0;
   }
+  .settings-card input[type="text"]{
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 9px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight:600;
+    width:100%;
+    min-width:0;
+  }
+  .settings-card input[type="text"]::placeholder{ color: var(--text-muted); opacity: 0.8; }
+  .settings-card input[type="text"].team-name-input{ font-weight:800; font-size: 14px; }
+
+  .team-cards{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .team-card{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+  .team-card-top{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .team-card input[type="color"]{
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    padding:0;
+    background:none;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper{ padding:0; }
+  input[type="color"]::-webkit-color-swatch{ border:none; border-radius:50%; }
+  input[type="color"]::-moz-color-swatch{ border:none; border-radius:50%; }
+
+  .swatches{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+  }
+  .swatch{
+    position:relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor:pointer;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .swatch.active{ border-color: var(--gold-ink); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gold-ink); }
+  .swatch.custom{
+    background: conic-gradient(#e0533d, #e8b33b, #5fbf6a, #3d8fd6, #9a5bd0, #e0533d);
+  }
+  .swatch.custom input{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    cursor:pointer;
+  }
+
   .logo-row{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:10px;
   }
   .logo-preview{
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: var(--surface-2);
     border: 1px dashed var(--border);
@@ -759,8 +937,7 @@
     overflow:hidden;
     flex-shrink:0;
     color: var(--text-muted);
-    font-size:11px;
-    text-align:center;
+    font-size:15px;
   }
   .logo-preview img{ width:100%; height:100%; object-fit:cover; }
   .file-btn-row{
@@ -772,62 +949,16 @@
     flex:1;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    padding: 9px 8px;
     font-size: 12.5px;
     font-weight:700;
     color: var(--text);
     text-align:center;
     cursor:pointer;
   }
+  .file-btn-row button:disabled{ opacity:0.4; }
   input[type="file"]{ display:none; }
-  .color-row{
-    display:flex;
-    gap:10px;
-  }
-  .color-field{
-    flex:1;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 6px 10px;
-  }
-  .color-field span{ font-size:12px; color: var(--text-muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .color-field input[type="color"]{
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 50%;
-    padding:0;
-    background:none;
-    cursor:pointer;
-    flex-shrink:0;
-  }
-  .name-row{
-    display:flex;
-    gap:8px;
-  }
-  .name-field{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-  }
-  .name-field label{ font-size:11px; color: var(--text-muted); font-weight:700; }
-  .name-field input[type="text"]{
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 9px 10px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight:700;
-    width:100%;
-  }
   .settings-note{
     font-size:11px;
     color: var(--text-muted);
@@ -837,19 +968,66 @@
   .settings-footer{
     display:flex;
     gap:8px;
-    margin-top: 6px;
   }
   .settings-footer button{ flex:1; }
+
+  /* anúncios: faixa fixa no rodapé; nas telas largas, colunas dos lados */
+  .ad-rail{ display:none; }
+  .ad-bottom{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index: 10;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height: calc(var(--ad-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+  }
+  .ad-slot{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .ad-bottom .ad-slot{ width: 320px; max-width:100%; height: 50px; }
+  .ad-rail .ad-slot{ width: 160px; height: 600px; }
+  .ad-slot.placeholder{
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight:700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  body.no-ads .ad-bottom, body.no-ads .ad-rail{ display:none !important; }
+  @media (min-width: 920px){
+    .ad-rail{
+      display:block;
+      position:sticky;
+      top: 16px;
+      align-self:flex-start;
+      flex-shrink:0;
+      margin-top: 6px;
+    }
+  }
 
   [hidden]{ display:none !important; }
 </style>
 </head>
 <body>
+<aside class="ad-rail" aria-label="Publicidade"><div class="ad-slot" data-ad="left"></div></aside>
+
 <div class="app">
 
   <header>
     <div class="title-row">
-      <button class="icon-btn" id="settingsBtn" aria-label="Personalizar painel" title="Personalizar painel">⚙</button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Ajustes" title="Ajustes">⚙</button>
       <h1>Truco Paulista</h1>
     </div>
     <div class="header-right">
@@ -883,8 +1061,8 @@
       <div class="mao11" id="mao11A" hidden>Mão de 11</div>
       <div class="mao11-spacer" id="spacerA"></div>
       <div class="mini-controls">
+        <button class="point-btn" data-team="A"><span class="pb-plus">+1</span><span class="pb-label">Ganhou a mão</span></button>
         <button class="mini" data-action="minus" data-team="A" aria-label="Remover um ponto de Nós">−1</button>
-        <button class="point-btn" data-team="A">Ganhou a mão</button>
       </div>
     </div>
 
@@ -896,7 +1074,7 @@
       <div class="mao11" id="mao11B" hidden>Mão de 11</div>
       <div class="mao11-spacer" id="spacerB"></div>
       <div class="mini-controls">
-        <button class="point-btn" data-team="B">Ganhou a mão</button>
+        <button class="point-btn" data-team="B"><span class="pb-plus">+1</span><span class="pb-label">Ganhou a mão</span></button>
         <button class="mini" data-action="minus" data-team="B" aria-label="Remover um ponto de Eles">−1</button>
       </div>
     </div>
@@ -927,6 +1105,7 @@
       <button class="narr-chip" data-persona="bar_leve">Bar</button>
       <button class="narr-chip" data-persona="bar">Bar 18+</button>
     </div>
+    <button class="narr-speed" id="speedBtn" aria-label="Velocidade da voz" title="Velocidade da voz">1×</button>
   </section>
 
   <section class="actions">
@@ -954,6 +1133,9 @@
 
 </div>
 
+<aside class="ad-rail" aria-label="Publicidade"><div class="ad-slot" data-ad="right"></div></aside>
+<div class="ad-bottom" aria-label="Publicidade"><div class="ad-slot" data-ad="bottom"></div></div>
+
 <div class="overlay" id="winOverlay" hidden>
   <div class="overlay-card">
     <p class="win-title">Vitória!</p>
@@ -975,102 +1157,76 @@
 </div>
 
 <div class="overlay" id="settingsOverlay" hidden>
-  <div class="overlay-card settings-card">
-    <p class="settings-title">Personalizar painel</p>
+  <div class="overlay-card settings-card" role="dialog" aria-labelledby="settingsTitle">
+    <div class="settings-head">
+      <p class="settings-title" id="settingsTitle">Ajustes</p>
+      <button type="button" class="icon-btn" id="closeSettingsX" aria-label="Fechar ajustes">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <p class="settings-label">Times e jogadores</p>
+      <div class="team-cards">
+        <div class="team-card">
+          <div class="team-card-top">
+            <input type="color" id="colorInputA" value="#C1462E" aria-label="Cor do time 1">
+            <input type="text" class="team-name-input" id="nameInputA" maxlength="18" placeholder="Nós" aria-label="Nome do time 1">
+          </div>
+          <input type="text" id="playerInput0" maxlength="18" placeholder="Nós 1" aria-label="Primeiro jogador do time 1">
+          <input type="text" id="playerInput2" maxlength="18" placeholder="Nós 2" aria-label="Segundo jogador do time 1">
+        </div>
+        <div class="team-card">
+          <div class="team-card-top">
+            <input type="color" id="colorInputB" value="#3E8E96" aria-label="Cor do time 2">
+            <input type="text" class="team-name-input" id="nameInputB" maxlength="18" placeholder="Eles" aria-label="Nome do time 2">
+          </div>
+          <input type="text" id="playerInput1" maxlength="18" placeholder="Eles 1" aria-label="Primeiro jogador do time 2">
+          <input type="text" id="playerInput3" maxlength="18" placeholder="Eles 2" aria-label="Segundo jogador do time 2">
+        </div>
+      </div>
+      <p class="settings-note">Nome em branco volta ao padrão. Quem dá as cartas gira entre os quatro, alternando os times.</p>
+    </div>
 
     <div class="settings-section">
       <p class="settings-label">Narrador</p>
-      <div class="volume-row">
-        <label for="volumeInput" style="font-size:12px; color:var(--text-muted); font-weight:700;">Volume</label>
-        <input type="range" id="volumeInput" min="0" max="100" step="5" value="90">
-        <span id="volumeLabel">90%</span>
+      <div class="set-row">
+        <span>Volume</span>
+        <input type="range" id="volumeInput" min="0" max="100" step="5" value="90" aria-label="Volume do narrador">
+        <span class="set-value" id="volumeLabel">90%</span>
       </div>
-      <p class="settings-label" style="margin-top:2px;">Quem é o seu time</p>
-      <div class="toggle-row" role="group" aria-label="Escolher o seu time">
-        <button type="button" id="myTeamA" data-team="A">Nós</button>
-        <button type="button" id="myTeamB" data-team="B">Eles</button>
+      <div class="set-row">
+        <span>Torce para</span>
+        <div class="seg" role="group" aria-label="Time do narrador">
+          <button type="button" id="myTeamA" data-team="A">Nós</button>
+          <button type="button" id="myTeamB" data-team="B">Eles</button>
+        </div>
       </div>
-      <p class="settings-note">O narrador comemora a vitória do time escolhido aqui e lamenta a derrota dele. O estilo da voz troca a qualquer momento na barra do narrador, na tela principal.</p>
+      <div class="set-row">
+        <span>Falar placar</span>
+        <p class="settings-note" style="flex:1;">ao fim de cada mão</p>
+        <button type="button" class="switch" id="scoreSpeechToggle" role="switch" aria-checked="true" aria-label="Falar o placar ao fim de cada mão"></button>
+      </div>
     </div>
 
     <div class="settings-section">
-      <p class="settings-label">Logo no meio do placar</p>
+      <p class="settings-label">Aparência</p>
+      <div class="swatches" id="bgSwatches" role="group" aria-label="Cor do painel">
+        <label class="swatch custom" id="bgCustomSwatch" title="Outra cor">
+          <input type="color" id="bgColorInput" value="#0B1712" aria-label="Escolher outra cor do painel">
+        </label>
+      </div>
       <div class="logo-row">
-        <div class="logo-preview" id="logoPreview">sem logo</div>
+        <div class="logo-preview" id="logoPreview">×</div>
         <div class="file-btn-row">
-          <label for="logoInput">Escolher imagem</label>
-          <button type="button" id="removeLogoBtn">Remover</button>
+          <label for="logoInput">Pôr logo</label>
+          <button type="button" id="removeLogoBtn">Tirar logo</button>
         </div>
         <input type="file" id="logoInput" accept="image/*">
       </div>
-      <p class="settings-note">A imagem fica salva só neste celular. Prefira arquivos pequenos (até ~1 MB).</p>
-    </div>
-
-    <div class="settings-section">
-      <p class="settings-label">Cor de fundo do painel</p>
-      <div class="color-field" style="max-width:180px;">
-        <span id="bgColorLabel">Padrão (verde escuro)</span>
-        <input type="color" id="bgColorInput" value="#0B1712">
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <p class="settings-label">Cor de cada time</p>
-      <div class="color-row">
-        <div class="color-field">
-          <span id="colorLabelA">Nós</span>
-          <input type="color" id="colorInputA" value="#C1462E">
-        </div>
-        <div class="color-field">
-          <span id="colorLabelB">Eles</span>
-          <input type="color" id="colorInputB" value="#3E8E96">
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <p class="settings-label">Nomes dos times</p>
-      <div class="name-row">
-        <div class="name-field">
-          <label for="nameInputA">Time 1</label>
-          <input type="text" id="nameInputA" maxlength="18" placeholder="Nós">
-        </div>
-        <div class="name-field">
-          <label for="nameInputB">Time 2</label>
-          <input type="text" id="nameInputB" maxlength="18" placeholder="Eles">
-        </div>
-      </div>
-      <button type="button" id="resetNamesBtn" class="secondary">Restaurar nomes (Nós / Eles)</button>
-    </div>
-
-    <div class="settings-section">
-      <p class="settings-label">Jogadores (ordem de dar cartas)</p>
-      <div class="name-row">
-        <div class="name-field">
-          <label for="playerInput0" id="playerLabel0">Nós 1</label>
-          <input type="text" id="playerInput0" maxlength="18" placeholder="Nós 1">
-        </div>
-        <div class="name-field">
-          <label for="playerInput1" id="playerLabel1">Eles 1</label>
-          <input type="text" id="playerInput1" maxlength="18" placeholder="Eles 1">
-        </div>
-      </div>
-      <div class="name-row">
-        <div class="name-field">
-          <label for="playerInput2" id="playerLabel2">Nós 2</label>
-          <input type="text" id="playerInput2" maxlength="18" placeholder="Nós 2">
-        </div>
-        <div class="name-field">
-          <label for="playerInput3" id="playerLabel3">Eles 2</label>
-          <input type="text" id="playerInput3" maxlength="18" placeholder="Eles 2">
-        </div>
-      </div>
-      <p class="settings-note">A ordem acima é a ordem física da mesa (dupla intercalada). O rodízio de quem dá as cartas segue essa ordem, no sentido escolhido.</p>
     </div>
 
     <div class="settings-footer">
-      <button type="button" class="secondary" id="resetVisualBtn">Restaurar cores e logo</button>
-      <button type="button" class="primary" id="closeSettingsBtn">Fechar</button>
+      <button type="button" class="secondary" id="resetVisualBtn">Restaurar visual</button>
+      <button type="button" class="primary" id="closeSettingsBtn">Pronto</button>
     </div>
   </div>
 </div>
@@ -1082,9 +1238,24 @@
   var STORAGE_KEY = "trucoPaulistaState_v2";
 
   var DEFAULT_BG = "#0B1712";
-  var DEFAULT_BG2 = "#0F1F18";
   var DEFAULT_TEAM_A = "#C1462E";
   var DEFAULT_TEAM_B = "#3E8E96";
+  var GOLD = "#D8A94D";
+  var DANGER = "#C8452D";
+
+  // Fundos prontos no painel de ajustes; null é o verde padrão.
+  var BG_PRESETS = [
+    { name: "Verde", color: null },
+    { name: "Azul", color: "#0B1628" },
+    { name: "Vinho", color: "#220C14" },
+    { name: "Roxo", color: "#180F28" },
+    { name: "Grafite", color: "#151617" },
+    { name: "Café", color: "#1F150C" },
+    { name: "Areia", color: "#EDE3CC" }
+  ];
+
+  var RATES = [1, 1.25, 1.5, 2]; // velocidades da voz, na ordem do botão
+  var DEFAULT_RATE = 1.25;
 
   var SEAT_TEAMS = ["A", "B", "A", "B"]; // fixed alternating seating: partners sit across, not side by side
 
@@ -1104,7 +1275,9 @@
         persona: "comico",
         volume: 0.9,
         adultOk: false, // o aviso de linguagem adulta já foi aceito
-        myTeam: "A"     // de quem é a vitória e de quem é a derrota, para o narrador
+        myTeam: "A",    // de quem é a vitória e de quem é a derrota, para o narrador
+        rate: DEFAULT_RATE,
+        placar: true    // falar o placar depois de cada mão
       }
     };
   };
@@ -1141,6 +1314,7 @@
         dealerIndex: (typeof parsed.dealerIndex === "number" && parsed.dealerIndex >= 0 && parsed.dealerIndex < 4) ? parsed.dealerIndex : 0,
         direction: parsed.direction === "ccw" ? "ccw" : "cw"
       });
+      if(RATES.indexOf(merged.audio.rate) < 0) merged.audio.rate = DEFAULT_RATE;
       return merged;
     }catch(e){
       return defaultState();
@@ -1196,6 +1370,8 @@
     volumeInput: document.getElementById("volumeInput"),
     volumeLabel: document.getElementById("volumeLabel"),
     myTeamButtons: [document.getElementById("myTeamA"), document.getElementById("myTeamB")],
+    speedBtn: document.getElementById("speedBtn"),
+    scoreSpeechToggle: document.getElementById("scoreSpeechToggle"),
     wakeDot: document.getElementById("wakeDot"),
     wakeStatus: document.getElementById("wakeStatus"),
     seatChips: Array.prototype.slice.call(document.querySelectorAll(".seat-chip")),
@@ -1208,28 +1384,21 @@
       document.getElementById("playerInput2"),
       document.getElementById("playerInput3")
     ],
-    playerLabels: [
-      document.getElementById("playerLabel0"),
-      document.getElementById("playerLabel1"),
-      document.getElementById("playerLabel2"),
-      document.getElementById("playerLabel3")
-    ],
     logoSpot: document.getElementById("logoSpot"),
     settingsBtn: document.getElementById("settingsBtn"),
     settingsOverlay: document.getElementById("settingsOverlay"),
     closeSettingsBtn: document.getElementById("closeSettingsBtn"),
+    closeSettingsX: document.getElementById("closeSettingsX"),
     logoInput: document.getElementById("logoInput"),
     logoPreview: document.getElementById("logoPreview"),
     removeLogoBtn: document.getElementById("removeLogoBtn"),
+    bgSwatches: document.getElementById("bgSwatches"),
+    bgCustomSwatch: document.getElementById("bgCustomSwatch"),
     bgColorInput: document.getElementById("bgColorInput"),
-    bgColorLabel: document.getElementById("bgColorLabel"),
     colorInputA: document.getElementById("colorInputA"),
     colorInputB: document.getElementById("colorInputB"),
-    colorLabelA: document.getElementById("colorLabelA"),
-    colorLabelB: document.getElementById("colorLabelB"),
     nameInputA: document.getElementById("nameInputA"),
     nameInputB: document.getElementById("nameInputB"),
-    resetNamesBtn: document.getElementById("resetNamesBtn"),
     resetVisualBtn: document.getElementById("resetVisualBtn")
   };
 
@@ -1237,42 +1406,162 @@
   var minusButtons = Array.prototype.slice.call(document.querySelectorAll(".mini"));
   var historyOpen = false;
 
-  // --- color helpers ---
+  // --- cores ---
+  // O painel inteiro sai da cor de fundo escolhida: cards, bordas e textos
+  // herdam o mesmo matiz, e o texto troca entre claro e escuro conforme o
+  // fundo. Toda cor de texto passa por uma checagem de contraste antes de
+  // ir para a tela, então nenhuma combinação de fundo e time some.
+  var LIGHT_TEXT = "#EDE7D9";
+  var DARK_TEXT = "#16130D";
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var lastTheme = {};
+
   function normalizeHex(hex){
     hex = (hex || "").replace("#", "");
     if(hex.length === 3) hex = hex.split("").map(function(c){ return c + c; }).join("");
     return hex;
   }
-  function shadeColor(hex, percent){
-    var h = normalizeHex(hex);
-    var num = parseInt(h, 16);
-    if(isNaN(num)) return hex;
-    var amt = Math.round(2.55 * percent);
-    var r = Math.min(255, Math.max(0, (num >> 16) + amt));
-    var g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amt));
-    var b = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
-    return "#" + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+  function hexToRgb(hex){
+    var n = parseInt(normalizeHex(hex), 16);
+    if(isNaN(n)) n = 0;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  function rgbToHex(c){
+    return "#" + [c.r, c.g, c.b].map(function(v){
+      v = Math.round(Math.min(255, Math.max(0, v)));
+      return (v < 16 ? "0" : "") + v.toString(16);
+    }).join("");
+  }
+  function mix(a, b, t){ // t = 0 devolve a, t = 1 devolve b
+    var x = hexToRgb(a), y = hexToRgb(b);
+    return rgbToHex({ r: x.r + (y.r - x.r) * t, g: x.g + (y.g - x.g) * t, b: x.b + (y.b - x.b) * t });
+  }
+  function rgba(hex, alpha){
+    var c = hexToRgb(hex);
+    return "rgba(" + c.r + "," + c.g + "," + c.b + "," + alpha + ")";
+  }
+  function toHsl(hex){
+    var c = hexToRgb(hex), r = c.r / 255, g = c.g / 255, b = c.b / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    var h = 0, s = 0, l = (max + min) / 2;
+    if(d){
+      s = d / (1 - Math.abs(2 * l - 1));
+      if(max === r) h = ((g - b) / d) % 6;
+      else if(max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if(h < 0) h += 360;
+    }
+    return { h: h, s: s, l: l };
+  }
+  function hsl(h, s, l){
+    s = Math.min(1, Math.max(0, s));
+    l = Math.min(1, Math.max(0, l));
+    var c = (1 - Math.abs(2 * l - 1)) * s;
+    var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    var m = l - c / 2;
+    var rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] :
+              h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    return rgbToHex({ r: (rgb[0] + m) * 255, g: (rgb[1] + m) * 255, b: (rgb[2] + m) * 255 });
+  }
+  function luminance(hex){
+    var c = hexToRgb(hex);
+    function ch(v){ v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+    return 0.2126 * ch(c.r) + 0.7152 * ch(c.g) + 0.0722 * ch(c.b);
+  }
+  function contrast(a, b){
+    var x = luminance(a), y = luminance(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  // Clareia (sobre fundo escuro) ou escurece (sobre fundo claro) só o
+  // necessário para a cor ser lida em cima de `against`.
+  function legible(color, against, min){
+    var toward = luminance(against) < 0.18 ? "#FFFFFF" : "#000000";
+    for(var t = 0; t <= 1; t += 0.05){
+      var c = mix(color, toward, t);
+      if(contrast(c, against) >= min) return c;
+    }
+    return toward;
+  }
+  // Texto por cima de uma cor cheia (botão de pontuar do time). Claro sempre
+  // que der leitura — o "+3" é grande —, escuro só em cor clara de verdade.
+  function onColor(fill){
+    return contrast("#FFF8EC", fill) >= 3.2 ? "#FFF8EC" : "#1C1710";
+  }
+
+  function buildPalette(bg){
+    var c = toHsl(bg), h = c.h, s = c.s, l = c.l;
+    var dark = contrast(LIGHT_TEXT, bg) >= contrast(DARK_TEXT, bg);
+    var p = { dark: dark, bg: bg };
+    if(dark){
+      // Cards um pouco acima do fundo. Num fundo médio (um azul vivo, por
+      // exemplo) eles descem até o texto claro ter folga de leitura.
+      var base = l;
+      for(var i = 0; i < 30; i++){
+        p.surface = hsl(h, s * 0.97, base + 0.055);
+        p.surface2 = hsl(h, s * 0.92, base + 0.09);
+        p.border = hsl(h, s * 0.75, base + 0.16);
+        if(contrast(LIGHT_TEXT, p.surface2) >= 7) break;
+        base -= 0.015;
+      }
+      p.bg2 = hsl(h, s, l + 0.025);
+      p.text = LIGHT_TEXT;
+      p.muted = legible(hsl(h, Math.min(s * 0.3, 0.14), 0.62), p.surface2, 4.5);
+    }else{
+      var top = Math.min(0.97, l + (1 - l) * 0.55);
+      p.surface = hsl(h, s * 0.9, top);
+      p.surface2 = hsl(h, s * 0.85, top - 0.05);
+      p.border = hsl(h, s * 0.5, top - 0.17);
+      p.bg2 = hsl(h, s, l + 0.04);
+      p.text = legible(hsl(h, Math.min(s, 0.35), 0.13), p.surface2, 7);
+      p.muted = legible(hsl(h, Math.min(s * 0.4, 0.2), 0.38), p.surface2, 4.5);
+    }
+    p.goldInk = legible(GOLD, p.surface, 4.5);
+    p.goldDim = mix(p.goldInk, p.surface, 0.45);
+    p.dangerInk = legible("#E0674F", p.surface, 4.5);
+    p.scrim = rgba(mix(bg, "#000000", 0.6), dark ? 0.75 : 0.55);
+    return p;
   }
 
   function applyTheme(){
-    var root = document.documentElement.style;
     var bg = state.theme.bg || DEFAULT_BG;
-    var bg2 = state.theme.bg ? shadeColor(state.theme.bg, 6) : DEFAULT_BG2;
     var teamA = state.theme.teamA || DEFAULT_TEAM_A;
     var teamB = state.theme.teamB || DEFAULT_TEAM_B;
-
-    root.setProperty("--bg", bg);
-    root.setProperty("--bg-2", bg2);
-    root.setProperty("--team-a", teamA);
-    root.setProperty("--team-a-dim", shadeColor(teamA, -55));
-    root.setProperty("--team-b", teamB);
-    root.setProperty("--team-b-dim", shadeColor(teamB, -55));
-
-    if(state.theme.logo){
-      el.logoSpot.innerHTML = '<img src="' + state.theme.logo + '" alt="Logo">';
-    }else{
-      el.logoSpot.textContent = "×";
+    var key = bg + teamA + teamB;
+    if(lastTheme.key !== key){
+      lastTheme.key = key;
+      var p = buildPalette(bg);
+      var vars = {
+        "--bg": p.bg, "--bg-2": p.bg2, "--surface": p.surface, "--surface-2": p.surface2,
+        "--border": p.border, "--text": p.text, "--text-muted": p.muted,
+        "--gold": GOLD, "--gold-ink": p.goldInk, "--gold-dim": p.goldDim,
+        "--danger": DANGER, "--danger-ink": p.dangerInk, "--scrim": p.scrim
+      };
+      [["a", teamA], ["b", teamB]].forEach(function(t){
+        var fill = t[1];
+        vars["--team-" + t[0]] = legible(fill, p.surface, 3);
+        vars["--team-" + t[0] + "-fill"] = fill;
+        vars["--on-team-" + t[0]] = onColor(fill);
+        vars["--team-" + t[0] + "-dim"] = p.dark ? mix(fill, p.bg, 0.68) : mix(fill, p.surface, 0.8);
+      });
+      var root = document.documentElement.style;
+      Object.keys(vars).forEach(function(k){ root.setProperty(k, vars[k]); });
+      root.setProperty("color-scheme", p.dark ? "dark" : "light");
+      if(themeMeta) themeMeta.setAttribute("content", p.bg);
     }
+
+    if(lastTheme.logo !== state.theme.logo){
+      lastTheme.logo = state.theme.logo;
+      if(state.theme.logo){
+        el.logoSpot.innerHTML = '<img src="' + state.theme.logo + '" alt="Logo">';
+      }else{
+        el.logoSpot.textContent = "×";
+      }
+    }
+  }
+
+  function formatRate(r){
+    return String(r).replace(".", ",") + "×";
   }
 
   function render(){
@@ -1280,8 +1569,6 @@
     el.nameB.textContent = state.names.B;
     el.winsLabelA.textContent = state.names.A;
     el.winsLabelB.textContent = state.names.B;
-    el.colorLabelA.textContent = state.names.A;
-    el.colorLabelB.textContent = state.names.B;
 
     el.scoreA.textContent = state.scores.A;
     el.scoreB.textContent = state.scores.B;
@@ -1308,7 +1595,11 @@
     el.directionArrow.textContent = cw ? "⟳" : "⟲";
     el.directionText.textContent = cw ? "Horário" : "Anti-horário";
 
-    pointButtons.forEach(function(b){ b.disabled = gameOver; });
+    pointButtons.forEach(function(b){
+      b.disabled = gameOver;
+      b.querySelector(".pb-plus").textContent = "+" + state.stake;
+      b.setAttribute("aria-label", state.names[b.dataset.team] + " ganhou a mão: mais " + state.stake + (state.stake === 1 ? " ponto" : " pontos"));
+    });
     minusButtons.forEach(function(b){ b.disabled = gameOver; });
     el.cangouBtn.disabled = gameOver;
     el.ranA.disabled = gameOver;
@@ -1325,12 +1616,16 @@
       chip.classList.toggle("active", mine && state.audio.on);
       chip.classList.toggle("chosen", mine && !state.audio.on);
     });
+    el.speedBtn.textContent = formatRate(state.audio.rate);
+    el.speedBtn.setAttribute("aria-label", "Velocidade da voz: " + formatRate(state.audio.rate));
     el.volumeInput.value = Math.round(state.audio.volume * 100);
     el.volumeLabel.textContent = Math.round(state.audio.volume * 100) + "%";
     el.myTeamButtons.forEach(function(btn){
       btn.textContent = state.names[btn.dataset.team];
       btn.classList.toggle("active", state.audio.myTeam === btn.dataset.team);
     });
+    el.scoreSpeechToggle.setAttribute("aria-checked", String(state.audio.placar));
+    renderSwatches();
 
     applyTheme();
     renderHistory();
@@ -1435,14 +1730,28 @@
     }).catch(function(){});
   })();
 
+  // Uma fala é a sequência que um toque dispara: o clipe do evento, talvez um
+  // comentário da situação, depois o placar. Toque novo corta a fala anterior
+  // inteira — vale o que acabou de acontecer na mesa, e nada fica na fila
+  // esperando o narrador terminar a frase velha.
   var player = new Audio();
   player.preload = "auto";
-  var speechQueue = [];
-  var speaking = false;
+  keepPitch(player);
+  var speechQueue = [];     // o que falta da fala atual: { src } (clipe) ou { text } (voz do aparelho)
+  var current = null;       // encerra o item que está tocando; null quando o narrador está quieto
+  var speechId = 0;         // muda a cada item e a cada corte: callback de fala antiga se ignora
+  var utterance = null;     // referência viva: o Chrome coleta a fala solta e perde o onend
   var lastClip = {};        // persona|evento -> último arquivo tocado
   var spokenOnce = {};      // marcos já narrados nesta partida
   var handsSinceTight = 99; // espaça os comentários de placar apertado
   var warmed = {};
+
+  // Voz mais rápida no mesmo tom; sem isso 1,5× vira desenho animado.
+  function keepPitch(media){
+    media.preservesPitch = true;
+    media.mozPreservesPitch = true;
+    media.webkitPreservesPitch = true;
+  }
 
   function pickClip(evento){
     var byPersona = clips[evento];
@@ -1461,34 +1770,125 @@
     return AUDIO_DIR + chosen;
   }
 
-  function say(evento, opts){
-    if(!state.audio.on) return;
-    opts = opts || {};
+  function clip(evento){
     var src = pickClip(evento);
-    if(!src) return;
-    if(opts.interrupt) silence();
-    if(speechQueue.length >= 2) return; // o narrador não empilha fala sobre fala
-    speechQueue.push(src);
-    pump();
+    return src ? { src: src } : null;
   }
 
-  function pump(){
-    if(speaking || !speechQueue.length) return;
-    speaking = true;
-    player.src = speechQueue.shift();
-    player.volume = state.audio.volume;
-    var p = player.play();
-    if(p && p.catch) p.catch(function(){ speaking = false; });
+  function speak(items){
+    if(!state.audio.on) return;
+    items = items.filter(Boolean);
+    if(!items.length) return;
+    silence();
+    unlockSpeech();
+    speechQueue = items;
+    playNext();
+  }
+
+  function say(evento){
+    speak([clip(evento)]);
+  }
+
+  function playNext(){
+    current = null;
+    var item = speechQueue.shift();
+    if(!item) return;
+    var id = ++speechId;
+    var finished = false;
+    var done = function(){
+      if(finished || id !== speechId) return;
+      finished = true;
+      playNext();
+    };
+    current = done;
+    if(item.src){
+      player.src = item.src;
+      player.volume = state.audio.volume;
+      player.defaultPlaybackRate = state.audio.rate;
+      player.playbackRate = state.audio.rate;
+      var p = player.play();
+      if(p && p.catch) p.catch(done); // bloqueado ou arquivo faltando: segue para o próximo item
+    }else{
+      speakText(item.text, done);
+    }
   }
 
   function silence(){
-    speechQueue.length = 0;
+    speechId++;
+    speechQueue = [];
+    current = null;
     try{ player.pause(); }catch(e){}
-    speaking = false;
+    var ss = window.speechSynthesis;
+    if(ss && (ss.speaking || ss.pending)){ try{ ss.cancel(); }catch(e){} }
+    utterance = null;
   }
 
-  player.addEventListener("ended", function(){ speaking = false; pump(); });
-  player.addEventListener("error", function(){ speaking = false; pump(); });
+  // `ended`/`error` atrasados de um clipe já trocado não podem pular o item novo.
+  player.addEventListener("ended", function(){ if(player.ended && current) current(); });
+  player.addEventListener("error", function(){ if(player.error && current) current(); });
+
+  // O placar usa a voz do próprio aparelho (Web Speech): os nomes dos times
+  // são livres e não há clipe gravado para eles.
+  var ptVoiceCache;
+  function ptVoice(){
+    var ss = window.speechSynthesis;
+    if(ptVoiceCache !== undefined) return ptVoiceCache;
+    var voices = ss.getVoices ? ss.getVoices() : [];
+    if(!voices.length) return null; // lista ainda carregando; tenta de novo na próxima fala
+    function lang(v){ return (v.lang || "").replace("_", "-").toLowerCase(); }
+    var br = voices.filter(function(v){ return lang(v) === "pt-br"; });
+    var pt = br.length ? br : voices.filter(function(v){ return lang(v).indexOf("pt") === 0; });
+    ptVoiceCache = pt.filter(function(v){ return v.default; })[0] || pt[0] || null;
+    return ptVoiceCache;
+  }
+  if(window.speechSynthesis && window.speechSynthesis.addEventListener){
+    window.speechSynthesis.addEventListener("voiceschanged", function(){ ptVoiceCache = undefined; });
+  }
+
+  function speakText(text, done){
+    var ss = window.speechSynthesis;
+    if(!ss || typeof SpeechSynthesisUtterance !== "function"){ done(); return; }
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "pt-BR";
+    var voice = ptVoice();
+    if(voice) u.voice = voice;
+    u.rate = state.audio.rate;
+    u.volume = state.audio.volume;
+    u.onend = done;
+    u.onerror = done;
+    utterance = u;
+    var id = speechId;
+    // falar logo depois de um cancel() às vezes some no Chrome; um respiro resolve
+    setTimeout(function(){ if(id === speechId) ss.speak(u); }, 60);
+    // rede de segurança: há navegador que nunca dispara o onend
+    setTimeout(done, 2000 + text.length * 110 / state.audio.rate);
+  }
+
+  // No iOS a voz do aparelho só fala sozinha depois de uma primeira fala
+  // disparada por um toque; speak() sempre roda dentro de um toque.
+  var speechUnlocked = !(/iP(hone|ad|od)/.test(navigator.userAgent) ||
+                         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  function unlockSpeech(){
+    if(speechUnlocked || !window.speechSynthesis || typeof SpeechSynthesisUtterance !== "function") return;
+    speechUnlocked = true;
+    try{
+      var u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  function scoreLine(final){
+    var a = state.scores.A, b = state.scores.B;
+    var line = a === b
+      ? "Empate, " + a + " a " + b + "."
+      : state.names.A + ", " + a + ". " + state.names.B + ", " + b + ".";
+    return final ? "Placar final. " + line : line;
+  }
+
+  function placar(final){
+    return state.audio.placar ? { text: scoreLine(final) } : null;
+  }
 
   // Deixa os clipes da persona atual no cache do navegador antes de precisar
   // deles — o primeiro "Truco!" da noite não pode chegar atrasado.
@@ -1504,27 +1904,30 @@
     });
   }
 
-  // Comentário situacional, disparado depois do resultado da mão.
-  function narrateSituation(){
+  // Comentário situacional, que entra na fala logo depois do resultado da mão.
+  function situationClip(){
     var a = state.scores.A, b = state.scores.B;
-    if(a >= 12 || b >= 12) return;
+    if(a >= 12 || b >= 12) return null;
 
     if(a === 11 && b === 11){
-      if(!spokenOnce.escura){ spokenOnce.escura = true; say("mao_escura"); }
-      return;
+      if(spokenOnce.escura) return null;
+      spokenOnce.escura = true;
+      return clip("mao_escura");
     }
     if(a === 11 || b === 11){
       var key = a === 11 ? "onzeA" : "onzeB";
-      if(!spokenOnce[key]){ spokenOnce[key] = true; say("mao_de_onze"); }
-      return;
+      if(spokenOnce[key]) return null;
+      spokenOnce[key] = true;
+      return clip("mao_de_onze");
     }
 
     handsSinceTight++;
     if(Math.abs(a - b) <= 1 && Math.max(a, b) >= 6 &&
        handsSinceTight >= 3 && Math.random() < 0.55){
       handsSinceTight = 0;
-      say("placar_apertado");
+      return clip("placar_apertado");
     }
+    return null;
   }
 
   // Um −1 ou um desfazer que tire o time dos 11 devolve o direito de anunciar
@@ -1539,7 +1942,6 @@
     function apply(){
       state.audio.persona = id;
       state.audio.on = true;
-      silence();
       render();
       warmUp();
       // prévia curta: é assim que se escolhe um estilo, ouvindo
@@ -1586,14 +1988,14 @@
     if(team && state.scores[team] >= 12){
       state.wins[team] += 1;
       render();
-      say(team === state.audio.myTeam ? "vitoria" : "derrota", { interrupt: true });
+      speak([clip(team === state.audio.myTeam ? "vitoria" : "derrota"), placar(true)]);
       showWin(team);
       return;
     }
 
     render();
-    say(kind === "mao" ? "mao_vencida" : kind); // mao_vencida | correu | cangou
-    narrateSituation();
+    // mao_vencida | correu | cangou, o comentário da situação e o placar
+    speak([clip(kind === "mao" ? "mao_vencida" : kind), situationClip(), placar()]);
   }
 
   function awardPoint(team){
@@ -1614,6 +2016,8 @@
     state.scores[team] -= 1;
     syncMilestones();
     render();
+    silence();
+    speak([placar()]);
   }
 
   function undo(){
@@ -1627,6 +2031,7 @@
     silence();
     syncMilestones();
     render();
+    speak([placar()]);
   }
 
   function newMatch(){
@@ -1637,7 +2042,7 @@
     handsSinceTight = 99;
     el.winOverlay.hidden = true;
     render();
-    say("inicio", { interrupt: true });
+    say("inicio");
   }
 
   function resetEverything(){
@@ -1684,10 +2089,21 @@
       var previous = state.stake;
       state.stake = value;
       render();
-      // O aumento é o momento da fala: corta o que estiver tocando.
-      if(value !== previous && STAKE_EVENT[value]) say(STAKE_EVENT[value], { interrupt: true });
+      if(value === previous) return;
+      popPointButtons();
+      // Voltar para "Mão" é correção de marcação: só cala o narrador.
+      if(STAKE_EVENT[value]) say(STAKE_EVENT[value]); else silence();
     });
   });
+
+  // O +N dos botões de pontuar pula quando o valor da mão muda.
+  function popPointButtons(){
+    pointButtons.forEach(function(b){
+      b.classList.remove("pop");
+      void b.offsetWidth;
+      b.classList.add("pop");
+    });
+  }
   el.cangouBtn.addEventListener("click", cangar);
   el.ranA.addEventListener("click", function(){ awardRun("A"); });
   el.ranB.addEventListener("click", function(){ awardRun("B"); });
@@ -1696,11 +2112,25 @@
   el.narrChips.forEach(function(chip){
     chip.addEventListener("click", function(){ setPersona(chip.dataset.persona); });
   });
+  el.speedBtn.addEventListener("click", function(){
+    var i = RATES.indexOf(state.audio.rate);
+    state.audio.rate = RATES[(i + 1) % RATES.length];
+    // vale já para o clipe que estiver tocando
+    player.defaultPlaybackRate = state.audio.rate;
+    player.playbackRate = state.audio.rate;
+    render();
+    if(!current) say("mao_vencida"); // narrador quieto: toca uma prévia na velocidade nova
+  });
   el.volumeInput.addEventListener("input", function(){
     state.audio.volume = Number(el.volumeInput.value) / 100;
     player.volume = state.audio.volume;
     el.volumeLabel.textContent = el.volumeInput.value + "%";
     saveState();
+  });
+  el.scoreSpeechToggle.addEventListener("click", function(){
+    state.audio.placar = !state.audio.placar;
+    render();
+    if(state.audio.placar) speak([placar()]); else silence();
   });
   el.myTeamButtons.forEach(function(btn){
     btn.addEventListener("click", function(){
@@ -1777,35 +2207,74 @@
   makeNameEditable(el.nameB, "B");
 
   // --- settings modal ---
+  var swatchButtons = BG_PRESETS.map(function(preset){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "swatch";
+    b.title = preset.name;
+    b.setAttribute("aria-label", "Painel " + preset.name.toLowerCase());
+    b.style.background = preset.color || DEFAULT_BG;
+    b.addEventListener("click", function(){
+      state.theme.bg = preset.color;
+      el.bgColorInput.value = preset.color || DEFAULT_BG;
+      render();
+    });
+    el.bgSwatches.insertBefore(b, el.bgCustomSwatch);
+    return b;
+  });
+
+  function renderSwatches(){
+    var bg = (state.theme.bg || "").toLowerCase() || null;
+    var isPreset = false;
+    swatchButtons.forEach(function(b, i){
+      var preset = BG_PRESETS[i].color;
+      var on = (preset ? preset.toLowerCase() : null) === bg;
+      if(on) isPreset = true;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    el.bgCustomSwatch.classList.toggle("active", !isPreset);
+    if(!isPreset) el.bgCustomSwatch.style.background = state.theme.bg;
+    else el.bgCustomSwatch.style.background = "";
+  }
+
+  function syncPlayerPlaceholders(){
+    el.playerInputs.forEach(function(input, i){ input.placeholder = seatDefaultName(i); });
+  }
+
   function openSettings(){
     el.nameInputA.value = state.names.A;
     el.nameInputB.value = state.names.B;
     el.bgColorInput.value = state.theme.bg || DEFAULT_BG;
-    el.bgColorLabel.textContent = state.theme.bg ? state.theme.bg.toUpperCase() : "Padrão (verde escuro)";
     el.colorInputA.value = state.theme.teamA || DEFAULT_TEAM_A;
     el.colorInputB.value = state.theme.teamB || DEFAULT_TEAM_B;
-    for(var i = 0; i < 4; i++){
-      el.playerInputs[i].value = state.players[i] || "";
-      el.playerInputs[i].placeholder = seatDefaultName(i);
-      el.playerLabels[i].textContent = seatDefaultName(i);
-    }
+    el.playerInputs.forEach(function(input, i){ input.value = state.players[i] || ""; });
+    syncPlayerPlaceholders();
     updateLogoPreview();
     el.settingsOverlay.hidden = false;
   }
   function closeSettings(){
+    if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); // grava o campo que estava sendo editado
     el.settingsOverlay.hidden = true;
   }
   function updateLogoPreview(){
     if(state.theme.logo){
       el.logoPreview.innerHTML = '<img src="' + state.theme.logo + '" alt="Logo atual">';
     }else{
-      el.logoPreview.innerHTML = "";
-      el.logoPreview.textContent = "sem logo";
+      el.logoPreview.textContent = "×";
     }
+    el.removeLogoBtn.disabled = !state.theme.logo;
   }
 
   el.settingsBtn.addEventListener("click", openSettings);
   el.closeSettingsBtn.addEventListener("click", closeSettings);
+  el.closeSettingsX.addEventListener("click", closeSettings);
+  el.settingsOverlay.addEventListener("click", function(ev){
+    if(ev.target === el.settingsOverlay) closeSettings();
+  });
+  document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && !el.settingsOverlay.hidden) closeSettings();
+  });
 
   el.logoInput.addEventListener("change", function(ev){
     var file = ev.target.files && ev.target.files[0];
@@ -1828,7 +2297,6 @@
 
   el.bgColorInput.addEventListener("input", function(){
     state.theme.bg = el.bgColorInput.value;
-    el.bgColorLabel.textContent = el.bgColorInput.value.toUpperCase();
     render();
   });
   el.colorInputA.addEventListener("input", function(){
@@ -1845,6 +2313,7 @@
     state.names[key] = value.length ? value.slice(0, 18) : fallback;
     input.value = state.names[key];
     render();
+    syncPlayerPlaceholders();
   }
   el.nameInputA.addEventListener("change", function(){ commitNameInput("A", el.nameInputA, "Nós"); });
   el.nameInputB.addEventListener("change", function(){ commitNameInput("B", el.nameInputB, "Eles"); });
@@ -1854,27 +2323,66 @@
       var value = input.value.trim();
       state.players[i] = value.length ? value.slice(0, 18) : null;
       render();
-      input.placeholder = seatDefaultName(i);
     });
-  });
-
-  el.resetNamesBtn.addEventListener("click", function(){
-    state.names.A = "Nós";
-    state.names.B = "Eles";
-    el.nameInputA.value = "Nós";
-    el.nameInputB.value = "Eles";
-    render();
   });
 
   el.resetVisualBtn.addEventListener("click", function(){
     state.theme = { logo: null, bg: null, teamA: null, teamB: null };
     el.bgColorInput.value = DEFAULT_BG;
-    el.bgColorLabel.textContent = "Padrão (verde escuro)";
     el.colorInputA.value = DEFAULT_TEAM_A;
     el.colorInputB.value = DEFAULT_TEAM_B;
     updateLogoPreview();
     render();
   });
+
+  // --- anúncios ---
+  // Para ligar: preencha `client` (ca-pub-…) e o id de cada bloco criado no
+  // AdSense. Sem client, os espaços aparecem só como moldura, para ver o
+  // layout; `placeholder: false` esconde tudo até os anúncios existirem.
+  var ADS = {
+    client: "",
+    slots: { bottom: "", left: "", right: "" },
+    placeholder: true
+  };
+  var AD_BAR_HEIGHT = 60;
+
+  function setupAds(){
+    var live = !!ADS.client;
+    if(!live && !ADS.placeholder){
+      document.body.classList.add("no-ads");
+      return;
+    }
+    document.documentElement.style.setProperty("--ad-h", AD_BAR_HEIGHT + "px");
+    var wide = window.matchMedia ? window.matchMedia("(min-width: 920px)").matches : false;
+    var pending = 0;
+    Array.prototype.forEach.call(document.querySelectorAll(".ad-slot"), function(slot){
+      var where = slot.dataset.ad;
+      var slotId = ADS.slots[where];
+      if(!live || !slotId){
+        slot.classList.add("placeholder");
+        slot.textContent = "Anúncio";
+        return;
+      }
+      if(where !== "bottom" && !wide) return; // coluna lateral escondida: não pede anúncio
+      var ins = document.createElement("ins");
+      ins.className = "adsbygoogle";
+      ins.style.display = "inline-block";
+      ins.style.width = where === "bottom" ? "320px" : "160px";
+      ins.style.height = where === "bottom" ? "50px" : "600px";
+      ins.setAttribute("data-ad-client", ADS.client);
+      ins.setAttribute("data-ad-slot", slotId);
+      slot.appendChild(ins);
+      pending++;
+    });
+    if(!pending) return;
+    var script = document.createElement("script");
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(ADS.client);
+    document.head.appendChild(script);
+    window.adsbygoogle = window.adsbygoogle || [];
+    for(var i = 0; i < pending; i++) window.adsbygoogle.push({});
+  }
 
   // --- wake lock: keep screen on while scoring ---
   var wakeLock = null;
@@ -1907,6 +2415,7 @@
     if(!wakeLock) requestWakeLock();
   });
 
+  setupAds();
   requestWakeLock();
   render();
   warmUp();
