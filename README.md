@@ -15,7 +15,7 @@ verdade e o navegador cacheia os áudios:
     # http://localhost:8000
 
 ## Narrador
-
+ 
 Quatro estilos, trocáveis a qualquer momento na barra abaixo do placar —
 inclusive no meio da partida:
 
