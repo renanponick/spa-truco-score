@@ -537,7 +537,7 @@
     font-variant-numeric: tabular-nums;
     flex-shrink:0;
   }
-  .narrator.off .narr-speed{ opacity: 0.4; }
+  .narrator.mute .narr-speed{ opacity: 0.4; }
   @media (max-width: 370px){
     .narrator{ gap:4px; padding:5px; }
     .narr-chips{ gap:4px; }
@@ -994,6 +994,8 @@
     overflow:hidden;
   }
   .ad-bottom .ad-slot{ width: 320px; max-width:100%; height: 50px; }
+  .ad-inline{ display:flex; justify-content:center; }
+  .ad-inline .ad-slot{ width: 300px; max-width:100%; height: 250px; }
   .ad-rail .ad-slot{ width: 160px; height: 600px; }
   .ad-slot.placeholder{
     border: 1px dashed var(--border);
@@ -1005,8 +1007,27 @@
     text-transform: uppercase;
     opacity: 0.7;
   }
-  body.no-ads .ad-bottom, body.no-ads .ad-rail{ display:none !important; }
+  body.no-ads .ad-bottom, body.no-ads .ad-rail, body.no-ads .ad-inline{ display:none !important; }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    transform: translateX(-50%);
+    bottom: calc(var(--ad-h) + 16px + env(safe-area-inset-bottom, 0px));
+    z-index: 15;
+    width: calc(100% - 32px);
+    max-width: 380px;
+    background: var(--surface-2);
+    border: 1px solid var(--gold-dim);
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text);
+    box-shadow: 0 10px 28px -10px rgba(0,0,0,0.6);
+  }
   @media (min-width: 920px){
+    .ad-inline{ display:none; } /* tela larga já tem as colunas dos lados */
     .ad-rail{
       display:block;
       position:sticky;
@@ -1098,7 +1119,7 @@
   </section>
 
   <section class="narrator" id="narrator" aria-label="Narrador">
-    <button class="narr-power" id="audioToggle" aria-pressed="true" aria-label="Ligar ou desligar o narrador" title="Ligar ou desligar o narrador">🔊</button>
+    <button class="narr-power" id="audioToggle" aria-pressed="true" aria-label="Ligar ou desligar a narração" title="Ligar ou desligar a narração (o placar falado liga à parte, em Ajustes)">🔊</button>
     <div class="narr-chips" role="group" aria-label="Estilo do narrador">
       <button class="narr-chip" data-persona="serio">Sério</button>
       <button class="narr-chip" data-persona="comico">Cômico</button>
@@ -1126,6 +1147,8 @@
     <ul id="historyList" hidden></ul>
   </section>
 
+  <div class="ad-inline" aria-label="Publicidade"><div class="ad-slot" data-ad="inline"></div></div>
+
   <footer>
     <span class="wdot" id="wakeDot"></span>
     <span id="wakeStatus">Verificando a tela ativa…</span>
@@ -1135,6 +1158,7 @@
 
 <aside class="ad-rail" aria-label="Publicidade"><div class="ad-slot" data-ad="right"></div></aside>
 <div class="ad-bottom" aria-label="Publicidade"><div class="ad-slot" data-ad="bottom"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <div class="overlay" id="winOverlay" hidden>
   <div class="overlay-card">
@@ -1201,8 +1225,13 @@
         </div>
       </div>
       <div class="set-row">
-        <span>Falar placar</span>
-        <p class="settings-note" style="flex:1;">ao fim de cada mão</p>
+        <span>Narração</span>
+        <p class="settings-note" style="flex:1;">truco, mão, vitória…</p>
+        <button type="button" class="switch" id="narrationToggle" role="switch" aria-checked="true" aria-label="Falas do narrador"></button>
+      </div>
+      <div class="set-row">
+        <span>Placar</span>
+        <p class="settings-note" style="flex:1;" id="placarNote">falado ao fim de cada mão</p>
         <button type="button" class="switch" id="scoreSpeechToggle" role="switch" aria-checked="true" aria-label="Falar o placar ao fim de cada mão"></button>
       </div>
     </div>
@@ -1372,6 +1401,9 @@
     myTeamButtons: [document.getElementById("myTeamA"), document.getElementById("myTeamB")],
     speedBtn: document.getElementById("speedBtn"),
     scoreSpeechToggle: document.getElementById("scoreSpeechToggle"),
+    narrationToggle: document.getElementById("narrationToggle"),
+    placarNote: document.getElementById("placarNote"),
+    toast: document.getElementById("toast"),
     wakeDot: document.getElementById("wakeDot"),
     wakeStatus: document.getElementById("wakeStatus"),
     seatChips: Array.prototype.slice.call(document.querySelectorAll(".seat-chip")),
@@ -1609,6 +1641,7 @@
     el.undoBtn.disabled = state.history.length === 0;
 
     el.narrator.classList.toggle("off", !state.audio.on);
+    el.narrator.classList.toggle("mute", !state.audio.on && !state.audio.placar);
     el.audioToggle.textContent = state.audio.on ? "🔊" : "🔇";
     el.audioToggle.setAttribute("aria-pressed", String(state.audio.on));
     el.narrChips.forEach(function(chip){
@@ -1625,6 +1658,7 @@
       btn.classList.toggle("active", state.audio.myTeam === btn.dataset.team);
     });
     el.scoreSpeechToggle.setAttribute("aria-checked", String(state.audio.placar));
+    el.narrationToggle.setAttribute("aria-checked", String(state.audio.on));
     renderSwatches();
 
     applyTheme();
@@ -1739,6 +1773,7 @@
   keepPitch(player);
   var speechQueue = [];     // o que falta da fala atual: { src } (clipe) ou { text } (voz do aparelho)
   var current = null;       // encerra o item que está tocando; null quando o narrador está quieto
+  var currentKind = null;   // "src" ou "text": de que tipo é o item tocando
   var speechId = 0;         // muda a cada item e a cada corte: callback de fala antiga se ignora
   var utterance = null;     // referência viva: o Chrome coleta a fala solta e perde o onend
   var lastClip = {};        // persona|evento -> último arquivo tocado
@@ -1776,8 +1811,8 @@
   }
 
   function speak(items){
-    if(!state.audio.on) return;
-    items = items.filter(Boolean);
+    // narração (clipes) e placar (voz do aparelho) ligam e desligam em separado
+    items = items.filter(function(it){ return it && (it.src ? state.audio.on : state.audio.placar); });
     if(!items.length) return;
     silence();
     unlockSpeech();
@@ -1793,6 +1828,7 @@
     current = null;
     var item = speechQueue.shift();
     if(!item) return;
+    currentKind = item.src ? "src" : "text";
     var id = ++speechId;
     var finished = false;
     var done = function(){
@@ -1813,13 +1849,23 @@
     }
   }
 
+  // Desligar só a narração ou só o placar cala aquele tipo de fala; o resto
+  // da sequência segue — calou a narração no meio, o placar ainda sai.
+  function muteKind(kind){ // "src" = narração, "text" = placar
+    speechQueue = speechQueue.filter(function(it){ return !it[kind]; });
+    if(!current || currentKind !== kind) return;
+    if(kind === "src"){ try{ player.pause(); }catch(e){} }
+    else{ try{ window.speechSynthesis.cancel(); }catch(e){} }
+    current();
+  }
+
   function silence(){
     speechId++;
     speechQueue = [];
     current = null;
     try{ player.pause(); }catch(e){}
     var ss = window.speechSynthesis;
-    if(ss && (ss.speaking || ss.pending)){ try{ ss.cancel(); }catch(e){} }
+    if(ss){ try{ ss.cancel(); }catch(e){} }
     utterance = null;
   }
 
@@ -1835,19 +1881,48 @@
     if(ptVoiceCache !== undefined) return ptVoiceCache;
     var voices = ss.getVoices ? ss.getVoices() : [];
     if(!voices.length) return null; // lista ainda carregando; tenta de novo na próxima fala
-    function lang(v){ return (v.lang || "").replace("_", "-").toLowerCase(); }
-    var br = voices.filter(function(v){ return lang(v) === "pt-br"; });
-    var pt = br.length ? br : voices.filter(function(v){ return lang(v).indexOf("pt") === 0; });
-    ptVoiceCache = pt.filter(function(v){ return v.default; })[0] || pt[0] || null;
+    // Português do Brasil primeiro; voz "pura" antes das variantes do espeak
+    // ("+UniversalRobot", "+Adam"…), que no Linux vêm aos milhares e soam piores.
+    var best = null, bestScore = -1;
+    voices.forEach(function(v){
+      var lang = (v.lang || "").replace("_", "-").toLowerCase();
+      if(lang.indexOf("pt") !== 0) return;
+      var score = (lang === "pt-br" ? 8 : 0) +
+                  (v.name.indexOf("+") < 0 ? 4 : 0) +
+                  (/google|microsoft|luciana|felipe|francisca|thalita|natural|online/i.test(v.name) ? 3 : 0) +
+                  (v.default ? 1 : 0) + (v.localService ? 1 : 0);
+      if(score > bestScore){ best = v; bestScore = score; }
+    });
+    ptVoiceCache = best;
     return ptVoiceCache;
   }
   if(window.speechSynthesis && window.speechSynthesis.addEventListener){
     window.speechSynthesis.addEventListener("voiceschanged", function(){ ptVoiceCache = undefined; });
   }
 
+  // Sem voz no aparelho a fala do placar falha calada; avisa uma vez por
+  // sessão para ninguém achar que o botão está quebrado. (Chrome e Brave no
+  // Linux só têm voz abertos com --enable-speech-dispatcher.)
+  var NO_VOICE_ERRORS = { "synthesis-failed": true, "synthesis-unavailable": true, "language-unavailable": true, "voice-unavailable": true };
+  var noVoiceWarned = false;
+  function noVoice(){
+    el.placarNote.textContent = "sem voz neste navegador";
+    if(noVoiceWarned) return;
+    noVoiceWarned = true;
+    showToast("Este navegador não tem voz de leitura, então o placar não é falado. A narração continua normal.");
+  }
+
+  var toastTimer = null;
+  function showToast(message){
+    el.toast.textContent = message;
+    el.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.toast.hidden = true; }, 6000);
+  }
+
   function speakText(text, done){
+    if(!window.speechSynthesis || typeof SpeechSynthesisUtterance !== "function"){ noVoice(); done(); return; }
     var ss = window.speechSynthesis;
-    if(!ss || typeof SpeechSynthesisUtterance !== "function"){ done(); return; }
     var u = new SpeechSynthesisUtterance(text);
     u.lang = "pt-BR";
     var voice = ptVoice();
@@ -1855,11 +1930,18 @@
     u.rate = state.audio.rate;
     u.volume = state.audio.volume;
     u.onend = done;
-    u.onerror = done;
+    u.onerror = function(ev){
+      if(ev && NO_VOICE_ERRORS[ev.error]) noVoice();
+      done();
+    };
     utterance = u;
     var id = speechId;
     // falar logo depois de um cancel() às vezes some no Chrome; um respiro resolve
-    setTimeout(function(){ if(id === speechId) ss.speak(u); }, 60);
+    setTimeout(function(){
+      if(id !== speechId) return;
+      if(ss.paused) ss.resume(); // Chrome às vezes volta de segundo plano com a fala pausada
+      ss.speak(u);
+    }, 60);
     // rede de segurança: há navegador que nunca dispara o onend
     setTimeout(done, 2000 + text.length * 110 / state.audio.rate);
   }
@@ -1961,7 +2043,7 @@
 
   function toggleAudio(){
     state.audio.on = !state.audio.on;
-    if(!state.audio.on) silence(); else warmUp();
+    if(!state.audio.on) muteKind("src"); else warmUp();
     render();
   }
 
@@ -2119,7 +2201,10 @@
     player.defaultPlaybackRate = state.audio.rate;
     player.playbackRate = state.audio.rate;
     render();
-    if(!current) say("mao_vencida"); // narrador quieto: toca uma prévia na velocidade nova
+    // narrador quieto: toca uma prévia na velocidade nova
+    if(!current){
+      if(state.audio.on) say("mao_vencida"); else speak([placar()]);
+    }
   });
   el.volumeInput.addEventListener("input", function(){
     state.audio.volume = Number(el.volumeInput.value) / 100;
@@ -2130,8 +2215,9 @@
   el.scoreSpeechToggle.addEventListener("click", function(){
     state.audio.placar = !state.audio.placar;
     render();
-    if(state.audio.placar) speak([placar()]); else silence();
+    if(state.audio.placar) speak([placar()]); else muteKind("text");
   });
+  el.narrationToggle.addEventListener("click", toggleAudio);
   el.myTeamButtons.forEach(function(btn){
     btn.addEventListener("click", function(){
       state.audio.myTeam = btn.dataset.team;
@@ -2341,10 +2427,11 @@
   // layout; `placeholder: false` esconde tudo até os anúncios existirem.
   var ADS = {
     client: "",
-    slots: { bottom: "", left: "", right: "" },
+    slots: { bottom: "", inline: "", left: "", right: "" },
     placeholder: true
   };
   var AD_BAR_HEIGHT = 60;
+  var AD_SIZES = { bottom: [320, 50], inline: [300, 250], left: [160, 600], right: [160, 600] };
 
   function setupAds(){
     var live = !!ADS.client;
@@ -2363,12 +2450,14 @@
         slot.textContent = "Anúncio";
         return;
       }
-      if(where !== "bottom" && !wide) return; // coluna lateral escondida: não pede anúncio
+      // colunas só na tela larga, bloco depois do histórico só na estreita: espaço escondido não pede anúncio
+      var visible = where === "bottom" || (where === "inline" ? !wide : wide);
+      if(!visible) return;
       var ins = document.createElement("ins");
       ins.className = "adsbygoogle";
       ins.style.display = "inline-block";
-      ins.style.width = where === "bottom" ? "320px" : "160px";
-      ins.style.height = where === "bottom" ? "50px" : "600px";
+      ins.style.width = AD_SIZES[where][0] + "px";
+      ins.style.height = AD_SIZES[where][1] + "px";
       ins.setAttribute("data-ad-client", ADS.client);
       ins.setAttribute("data-ad-slot", slotId);
       slot.appendChild(ins);

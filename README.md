@@ -26,12 +26,14 @@ inclusive no meio da partida:
 | Bar       | `bar_leve/` | Otto — gritado, sem palavrão           |
 | Bar 18+   | `bar/`      | Otto — gritado, **linguagem adulta**   |
 
-O Bar 18+ pede confirmação na primeira vez. O 🔊 à esquerda liga e desliga o
-narrador sem perder o estilo escolhido. O botão à direita troca a velocidade da
+O Bar 18+ pede confirmação na primeira vez. O 🔊 à esquerda liga e desliga a
+narração (os clipes) sem perder o estilo escolhido; o placar falado tem chave
+própria, então dá para deixar só o placar. O botão à direita troca a velocidade da
 voz (1× → 1,25× → 1,5× → 2×, padrão 1,25×); o tom é preservado, e a troca vale
 na hora, inclusive para o clipe que está tocando. Volume, "torce para" (define
-de quem é a `vitoria` e de quem é a `derrota`) e "falar placar" ficam em ⚙ →
-Narrador.
+de quem é a `vitoria` e de quem é a `derrota`) e as chaves "Narração" e
+"Placar" ficam em ⚙ → Narrador. Desligar uma chave no meio de uma fala cala só
+aquele tipo: calou a narração durante o "mão vencida", o placar ainda sai.
 
 ### Quando cada fala dispara
 
@@ -61,8 +63,16 @@ Depois de cada mão o narrador fala o placar ("Nós, 5. Eles, 3." ou "Empate,
 5 a 5."; no fim, "Placar final. …"). Desfazer e −1 também falam o placar
 corrigido. Como os nomes dos times são livres, essa parte usa a voz do próprio
 aparelho (Web Speech API, `pt-BR`), não um clipe gravado — soa diferente do
-narrador e depende de o aparelho ter voz em português. Desliga em ⚙ → Falar
-placar.
+narrador e depende de o aparelho ter voz em português. Liga e desliga em ⚙ →
+Placar, independente da narração.
+
+Celular (Android, iOS), Windows e Mac já vêm com voz em português. No Linux,
+Chrome e Brave não têm voz nenhuma a menos que sejam abertos com
+`--enable-speech-dispatcher` (o Firefox usa o speech-dispatcher sozinho). Sem
+voz, a página avisa uma vez que o placar não vai ser falado, e a narração segue
+normal:
+
+    brave-browser --enable-speech-dispatcher
 
 ## Aparência
 
@@ -73,13 +83,14 @@ ajustada até ter contraste de leitura com o fundo.
 
 ## Anúncios
 
-Há três espaços: uma faixa fixa no rodapé (320×50) e, em telas com 920 px ou
-mais, uma coluna de cada lado (160×600). Para ligar, preencha o objeto `ADS` no
+Há quatro espaços: uma faixa fixa no rodapé (320×50); no celular (tela com
+menos de 920 px), um bloco 300×250 no fim da página, depois do histórico; e, em
+telas com 920 px ou mais, uma coluna de cada lado (160×600). Para ligar, preencha o objeto `ADS` no
 `index.html` com o `ca-pub-…` e o id de cada bloco criado no AdSense:
 
     var ADS = {
       client: "ca-pub-XXXXXXXXXXXXXXXX",
-      slots: { bottom: "1234567890", left: "…", right: "…" },
+      slots: { bottom: "1234567890", inline: "…", left: "…", right: "…" },
       placeholder: true
     };
 
